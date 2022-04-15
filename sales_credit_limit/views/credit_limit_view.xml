@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_customer_form" model="ir.ui.view">
+            <field name="name">Credit  Limit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='accounting']" position="inside">
+                    <group string="Credit Limit">
+                        <field name="active_limit"/>
+                        <field name="late_payment"/>
+                        <field name="due_amount"/>
+                        <field name="warning_stage"  attrs="{'invisible':[('active_limit','=',False)]}"/>
+                        <field name="blocking_stage" attrs="{'invisible':[('active_limit','=',False)]}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="header_view" model="ir.ui.view">
+            <field name="name">Credit Limit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="has_due" invisible="0"/>
+                    <field name="is_warning" invisible="0"/>
+                    <field name="blocking_stage" invisible="0"/>
+                    <field name="active_limit" invisible="0"/>
+                    <field name="late_payment" invisible="0"/>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="before">
+                    <div  style="font-size: 15px; padding: 15px; width:100%; background-color:#89CFF0; display: inline-block;" attrs="{'invisible':[('has_due','=',False)]}">
+                        This Customer's current due amount is <strong><field name="due_amount"/></strong> and their limit is <strong><field name="blocking_stage"/></strong>.
+                    </div>
+                    <div  style="font-size: 15px; padding: 15px; width:100%; background-color:#f08080; display: inline-block; "  attrs="{'invisible':[('is_warning','=',False)]}">
+                        This customer's <strong>warning limit</strong> has been crossed.
+                    </div>
+                    <div  style="font-size: 15px; padding: 15px; width:100%; background-color:#f08080; display: inline-block; margin-top:-10px;"  attrs="{'invisible':[('late_payment','=',False)]}">
+                        This customer has overdue invoices.
+                    </div>
+                    <br></br>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="users_credit_limit" model="ir.ui.view">
+            <field name="name">Credit Limit</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+              <xpath expr="//field[@name='sel_groups_26_27_28_29']" position="after">
+                <field name="credit_limit_override"/>
+            </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
