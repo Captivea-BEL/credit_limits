@@ -44,8 +44,8 @@ class ResPartner(models.Model):
         for rec in self:
             invoices = self.env['account.move'].search([
                     ('partner_id','=',rec.id),
-                    ('payment_state', 'not in', ['paid', 'in_payment']),
-                    ('move_type', '=', 'out_invoice'),
+                    ('invoice_payment_state', 'not in', ['paid', 'in_payment']),
+                    ('type', '=', 'out_invoice'),
                     ('invoice_date_due', '<', dtt.datetime.now())
                 ])
             if invoices:
