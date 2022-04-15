@@ -50,9 +50,11 @@
             <field name="model">res.users</field>
             <field name="inherit_id" ref="base.view_users_form"/>
             <field name="arch" type="xml">
-              <xpath expr="//field[@name='sel_groups_26_27_28_29']" position="after">
-                <field name="credit_limit_override"/>
-            </xpath>
+                <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='access_rights']" position="inside">
+                    <group col="2" string="Credit Limits">
+                        <field name="credit_limit_override"/>
+                    </group>
+                </xpath>
             </field>
         </record>
     </data>
