@@ -34,13 +34,15 @@ class SaleOrder(models.Model):
         to_address = self.env['ir.config_parameter'].sudo().get_param('mail.credit_limit_address')
         currentUser = self.env.user
         for order in self:
-            salesPerson = order.user_id
-
-            if not salesPerson or salesPerson == currentUser:
-                continue
-
+            # salesPerson = order.user_id
+            # if not salesPerson or salesPerson == currentUser:
+            #     continue
             # if not salesPerson.partner_id.email:
             #     raise UserError("Please add your email for related partner of your user %s ." % (salesPerson.name))
+
+            salesPerson = self.env.user
+            if not salesPerson.partner_id.email:
+                raise UserError("Please add your company email address for your user profile under the 'preferences' tab.")
 
             subject = 'Order %s has been approved by %s' % (order.name, currentUser.name)
             message = """

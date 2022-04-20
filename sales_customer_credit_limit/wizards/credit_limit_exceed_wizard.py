@@ -52,39 +52,41 @@ class CreditLimitExceedWizard(models.TransientModel):
             # Skip approval process for Sale Managers
             order.action_approve()
         else:
-            if order.user_id:
-                salesPerson = order.user_id
-            else:
-                salesPerson = self.env.user
+            # if order.user_id:
+            #     salesPerson = order.user_id
+            # else:
+            #     salesPerson = self.env.user
+            # if not salesPerson.partner_id.email:
+            #     raise UserError(
+            #         "Please add your email for related partner of your user %s ."
+            #         % (salesPerson.name))
+            salesPerson = self.env.user
             if not salesPerson.partner_id.email:
-                raise UserError(
-                    "Please add your email for related partner of your user %s ."
-                    % (salesPerson.name))
+                raise UserError("Please add your company email address for your user profile under the 'preferences' tab.")
 
-            employee = salesPerson.employee_ids[0] if salesPerson.employee_ids else False
-
-            if salesPerson.employee_ids:
-                managerEmployeeId = salesPerson.employee_ids[0].parent_id
-                if managerEmployeeId:
-                    if managerEmployeeId.user_id:
-                        managerPartner = managerEmployeeId.user_id.partner_id
-                        order.message_subscribe([managerPartner.id])
-                        if not managerPartner.email:
-                            raise UserError(
-                                "Please ask your admin to add email of employee %s on employee portal."
-                                % (managerEmployeeId.name))
-                    else:
-                        raise UserError(
-                            "Please ask your admin to add related user of employee %s on employee portal."
-                            % (managerEmployeeId.name))
-                else:
-                    raise UserError(
-                        "Please ask your admin to add manager of employee %s on employee portal."
-                        % (employee.name))
-            else:
-                raise UserError(
-                    "Please ask your admin to configure %s on employee portal."
-                    % (salesPerson.name))
+            # employee = salesPerson.employee_ids[0] if salesPerson.employee_ids else False
+            # if salesPerson.employee_ids:
+            #     managerEmployeeId = salesPerson.employee_ids[0].parent_id
+            #     if managerEmployeeId:
+            #         if managerEmployeeId.user_id:
+            #             managerPartner = managerEmployeeId.user_id.partner_id
+            #             order.message_subscribe([managerPartner.id])
+            #             if not managerPartner.email:
+            #                 raise UserError(
+            #                     "Please ask your admin to add email of employee %s on employee portal."
+            #                     % (managerEmployeeId.name))
+            #         else:
+            #             raise UserError(
+            #                 "Please ask your admin to add related user of employee %s on employee portal."
+            #                 % (managerEmployeeId.name))
+            #     else:
+            #         raise UserError(
+            #             "Please ask your admin to add manager of employee %s on employee portal."
+            #             % (employee.name))
+            # else:
+            #     raise UserError(
+            #         "Please ask your admin to configure %s on employee portal."
+            #         % (salesPerson.name))
 
             # Set order 'To Approve' and notify manager
             order.state = 'need_approval'
@@ -100,7 +102,7 @@ class CreditLimitExceedWizard(models.TransientModel):
 
             subject = 'Approval for order %s requested by %s' % (order.name, salesPerson.name)
             message = """
-            Hi %s,<br/><br/>
+            Hi,<br/><br/>
             The Sales Order %s needs your approval because <i><b>%s</b></i>
             <ul>
                 <li>Customer: %s</li>
@@ -118,7 +120,7 @@ class CreditLimitExceedWizard(models.TransientModel):
             </p>
             Thanks & Regards,<br/>
             %s
-            """ % (managerEmployeeId.name, order.name, self.message,
+            """ % (order.name, self.message,
                    self.partner_id.display_name, credit_limit, symbol,
                    pending_amount, symbol, overdue_invoice_amount, symbol,
                    order_amount, symbol, exceeded_credit,
