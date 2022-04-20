@@ -41,14 +41,14 @@ class CreditLimitExceedWizard(models.TransientModel):
                                            readonly=1)
     unpaid_order_ids = fields.Many2many('sale.order',
                                         string='Sale orders (Unpaid)',
-                                        readonly=1)
+                                        readonly=1)                                    
 
     message = fields.Char('Message')
 
     def action_exceed_limit(self):
         self.ensure_one()
         order = self.order_id
-        if self.env.user.has_group('sales_team.group_sale_manager'):
+        if self.env.user.has_group('account.group_account_user'):
             # Skip approval process for Sale Managers
             order.action_approve()
         else:
@@ -96,6 +96,7 @@ class CreditLimitExceedWizard(models.TransientModel):
             exceeded_credit = '%.2f' % self.exceeded_credit
             symbol = self.partner_currency_id.symbol
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            to_address = self.env['ir.config_parameter'].sudo().get_param('mail.credit_limit_address')
 
             subject = 'Approval for order %s requested by %s' % (order.name, salesPerson.name)
             message = """
@@ -128,10 +129,11 @@ class CreditLimitExceedWizard(models.TransientModel):
 
             values = {
                 'email_from': salesPerson.partner_id.email,
-                'email_to': managerPartner.email,
+                # 'email_to': managerPartner.email,
+                'email_to': to_address,
                 'subject': subject,
                 'body_html': message,
-                'auto_delete': True,
+                'auto_delete': False,
             }
             mail = self.env['mail.mail'].create(values)
             mail.send()

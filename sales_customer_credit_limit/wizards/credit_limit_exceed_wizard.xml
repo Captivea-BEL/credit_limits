@@ -25,7 +25,7 @@
                             <field name="commercial_partner_id" invisible="1"/>
                             <field name="ref" invisible="1"/>
                             <field name="journal_id" invisible="1"/>
-                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            <!-- <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/> -->
                             <field name="invoice_date_due"/>
                             <field name="invoice_origin"/>
                             <field name="amount_total_signed" string="Total" sum="Total"/>
@@ -46,7 +46,7 @@
                             <field name="partner_id" readonly="1"/>
                             <field name="user_id" optional="show"/>
                             <field name="team_id" optional="hide"/>
-                            <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/>
+                            <!-- <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/> -->
                             <field name="amount_untaxed" sum="Total Tax Excluded" widget="monetary" optional="hide"/>
                             <field name="amount_tax" sum="Tax Total" widget="monetary" optional="hide"/>
                             <field name="amount_total" sum="Total Tax Included" widget="monetary" optional="show"/>

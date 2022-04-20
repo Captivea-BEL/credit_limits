@@ -31,6 +31,7 @@ class SaleOrder(models.Model):
 
     def send_approval_mail(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        to_address = self.env['ir.config_parameter'].sudo().get_param('mail.credit_limit_address')
         currentUser = self.env.user
         for order in self:
             salesPerson = order.user_id
@@ -38,8 +39,8 @@ class SaleOrder(models.Model):
             if not salesPerson or salesPerson == currentUser:
                 continue
 
-            if not salesPerson.partner_id.email:
-                raise UserError("Please add your email for related partner of your user %s ." % (salesPerson.name))
+            # if not salesPerson.partner_id.email:
+            #     raise UserError("Please add your email for related partner of your user %s ." % (salesPerson.name))
 
             subject = 'Order %s has been approved by %s' % (order.name, currentUser.name)
             message = """
@@ -59,7 +60,7 @@ class SaleOrder(models.Model):
 
             values = {
                 'email_from': currentUser.partner_id.email,
-                'email_to': salesPerson.partner_id.email,
+                'email_to': to_address,
                 'subject': subject,
                 'body_html': message,
                 'auto_delete': True,
@@ -71,18 +72,21 @@ class SaleOrder(models.Model):
         if not self._check_access_to_approve():
             raise UserError("You do not have the rights to approve this Sale Order.")
         self.with_context({'force_confirm': True}).action_confirm()
-
+    
+    #override function here for permissions.
     def _check_access_to_approve(self):
-        if self.env.user.has_group('sales_team.group_sale_manager'):
+        if self.env.user.has_group('account.group_account_user'):
             return True
-        manager = self.env.user.employee_ids and self.env.user.employee_ids[0]
-        if not manager:
+        else:
             return False
-        for order in self:
-            salesPerson = order.user_id.employee_ids and order.user_id.employee_ids[0]
-            if not salesPerson or not salesPerson.parent_id or manager != salesPerson.parent_id:
-                return False
-        return True
+        # manager = self.env.user.employee_ids and self.env.user.employee_ids[0]
+        # if not manager:
+        #     return False
+        # for order in self:
+        #     salesPerson = order.user_id.employee_ids and order.user_id.employee_ids[0]
+        #     if not salesPerson or not salesPerson.parent_id or manager != salesPerson.parent_id:
+        #         return False
+        # return True
 
     def action_draft(self):
         orders = self.filtered(lambda s: s.state in ['need_approval'])
@@ -124,7 +128,7 @@ class SaleOrder(models.Model):
 
         confirmedOrders = self.env['sale.order'].search([
             '|', '&', ('state', 'in', ['sale', 'done']),
-            ('invoice_status', 'in', ['to invoice']),
+            ('invoice_status', 'in', ['to invoice', 'no']),
             ('state', 'in', ['need_approval']),
             ('company_id', '=', self.company_id.id),
             ('partner_id', 'child_of', partner.id),
