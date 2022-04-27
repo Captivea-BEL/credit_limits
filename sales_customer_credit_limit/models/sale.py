@@ -54,7 +54,7 @@ class SaleOrder(models.Model):
             Thanks & Regards,<br/>
             %s
             """ % (salesPerson.name, order.name, base_url, order._name,
-                   order.id, order._description.lower(), salesPerson.name)
+                   order.id, order._description.lower(), currentUser.name)
 
             order.message_post(body=message, subject=subject)
 
