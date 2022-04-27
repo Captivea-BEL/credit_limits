@@ -36,17 +36,13 @@ class SaleOrder(models.Model):
             raise UserError("Please add a 'system parameter' with key 'mail.credit_limit_address' and value of the approval email address/alias.")
         currentUser = self.env.user
         for order in self:
-            # salesPerson = order.user_id
-            # if not salesPerson or salesPerson == currentUser:
-            #     continue
-            # if not salesPerson.partner_id.email:
-            #     raise UserError("Please add your email for related partner of your user %s ." % (salesPerson.name))
-
-            salesPerson = self.env.user
+            salesPerson = order.user_id
+            if not salesPerson or salesPerson == currentUser:
+                continue
             if not salesPerson.partner_id.email:
-                raise UserError("Please add your company email address for your user profile under the 'preferences' tab.")
+                raise UserError("Please add your email for related partner of your user %s ." % (salesPerson.name))
 
-            subject = 'Order %s has been approved by %s' % (order.name, currentUser.name)
+            subject = 'Order %s has been approved by %s' % (order.name, salesPerson.name)
             message = """
             Hi %s,<br/><br/>
             The Sales Order %s has been approved. You can proceed for further actions.
@@ -58,13 +54,13 @@ class SaleOrder(models.Model):
             Thanks & Regards,<br/>
             %s
             """ % (salesPerson.name, order.name, base_url, order._name,
-                   order.id, order._description.lower(), currentUser.name)
+                   order.id, order._description.lower(), salesPerson.name)
 
             order.message_post(body=message, subject=subject)
 
             values = {
                 'email_from': currentUser.partner_id.email,
-                'email_to': to_address,
+                'email_to': salesPerson.partner_id.email,
                 'subject': subject,
                 'body_html': message,
                 'auto_delete': True,
