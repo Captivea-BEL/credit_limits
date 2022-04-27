@@ -32,6 +32,8 @@ class SaleOrder(models.Model):
     def send_approval_mail(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         to_address = self.env['ir.config_parameter'].sudo().get_param('mail.credit_limit_address')
+        if not to_address:
+            raise UserError("Please add a 'system parameter' with key 'mail.credit_limit_address' and value of the approval email address/alias.")
         currentUser = self.env.user
         for order in self:
             # salesPerson = order.user_id
@@ -114,7 +116,7 @@ class SaleOrder(models.Model):
         orderAmount = self.currency_id._convert(self.amount_total, partnerCurrencyId,
                                                 self.company_id, self.date_order)
 
-        openInvoices = self.env['account.move'].search([
+        openInvoices = self.env['account.move'].sudo().search([
             ('type', '=', 'out_invoice'),
             ('company_id', '=', self.company_id.id),
             ('state', 'not in', ['cancel']),
@@ -128,7 +130,7 @@ class SaleOrder(models.Model):
         # Total amout which is invoiced but not paid (Draft invoices + unpaid amout in open invoices.)
         remainingInvoicesAmount = openInvoiceAmount
 
-        confirmedOrders = self.env['sale.order'].search([
+        confirmedOrders = self.env['sale.order'].sudo().search([
             '|', '&', ('state', 'in', ['sale', 'done']),
             ('invoice_status', 'in', ['to invoice', 'no']),
             ('state', 'in', ['need_approval']),

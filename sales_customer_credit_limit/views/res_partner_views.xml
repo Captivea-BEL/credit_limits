@@ -11,6 +11,9 @@
             <xpath expr="//page[@name='sales_purchases']/group/group/field[@name='user_id']" position="after">
                 <field name="credit_limit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
             </xpath>
+            <xpath expr="//field[@name='credit_limit']" position="attributes">
+                <attribute name="groups">account.group_account_invoice</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>
