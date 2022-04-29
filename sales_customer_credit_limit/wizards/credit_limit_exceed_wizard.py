@@ -99,7 +99,8 @@ class CreditLimitExceedWizard(models.TransientModel):
             symbol = self.partner_currency_id.symbol
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
             to_address = self.env['ir.config_parameter'].sudo().get_param('mail.credit_limit_address')
-
+            if not to_address:
+                raise UserError("Please add a 'system parameter' with key 'mail.credit_limit_address' and value of the approval email address/alias.")
             subject = 'Approval for order %s requested by %s' % (order.name, salesPerson.name)
             message = """
             Hi,<br/><br/>
